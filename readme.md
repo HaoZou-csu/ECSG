@@ -75,8 +75,9 @@ python train.py --name customized_model_name --path data/datasets/mp_data.csv
 ### Reproducibility without training
 
 ### Prediction
+```shell
 python train.py --name customized_trained_model_name --path your_data_path
-
+```
 ### Fluidity of Materials Project
 Please note that the Materials Project database is constantly changing. While this doesn't present any issues for the direct replication of our results or the application of new models trained on formation energy, it may complicate the strict replication of our results for models trained on multiple properties (e.g., band gap and formation energy learned simultaneously).
 

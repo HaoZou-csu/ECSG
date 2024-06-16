@@ -275,279 +275,30 @@ def main(
         )
 
 
-def input_parser():
-    """
-    parse input
-    """
-    parser = argparse.ArgumentParser(
-        description=(
-            "Roost - a Structure Agnostic Message Passing "
-            "Neural Network for Inorganic Materials"
-        )
-    )
 
-    # data inputs
-    parser.add_argument(
-        "--data-path",
-        type=str,
-        default="../data/datasets/expt-non-metals.csv",
-        metavar="PATH",
-        help="Path to main data set/training set",
-    )
-    valid_group = parser.add_mutually_exclusive_group()
-    valid_group.add_argument(
-        "--val-path",
-        type=str,
-        metavar="PATH",
-        help="Path to independent validation set",
-    )
-    valid_group.add_argument(
-        "--val-size",
-        default=0.0,
-        type=float,
-        metavar="FLOAT",
-        help="Proportion of data used for validation",
-    )
-    test_group = parser.add_mutually_exclusive_group()
-    test_group.add_argument(
-        "--test-path",
-        type=str,
-        metavar="PATH",
-        help="Path to independent test set"
-    )
-    test_group.add_argument(
-        "--test-size",
-        default=0.2,
-        type=float,
-        metavar="FLOAT",
-        help="Proportion of data set for testing",
-    )
+model_5_vars = {'data_path': '../data/datasets/expt-non-metals.csv', 'val_path': None, 'val_size': 0.0, 'test_path': None,
+     'test_size': 0.2, 'fea_path': './data/embeddings/matscholar-embedding.json', 'workers': 0, 'batch_size': 128,
+     'data_seed': 0, 'sample': 1, 'epochs': 100, 'loss': 'L1', 'robust': False, 'optim': 'AdamW',
+     'learning_rate': 0.0003, 'momentum': 0.9, 'weight_decay': 1e-06, 'elem_fea_len': 64, 'n_graph': 3, 'ensemble': 1,
+     'model_name': 'roost_s-0_t-1', 'data_id': 'roost', 'run_id': 0, 'fine_tune': None, 'transfer': None,
+     'resume': False, 'classification': False, 'regression': False, 'evaluate': False, 'train': False,
+     'disable_cuda': False, 'log': False, 'task': 'regression', 'device': 'cuda:0'}
 
-    # data embeddings
-    parser.add_argument(
-        "--fea-path",
-        type=str,
-        default="./data/embeddings/matscholar-embedding.json",
-        metavar="PATH",
-        help="Element embedding feature path",
-    )
 
-    # dataloader inputs
-    parser.add_argument(
-        "--workers",
-        default=0,
-        type=int,
-        metavar="INT",
-        help="Number of data loading workers (default: 0)",
-    )
-    parser.add_argument(
-        "--batch-size",
-        "--bsize",
-        default=128,
-        type=int,
-        metavar="INT",
-        help="Mini-batch size (default: 128)",
-    )
-    parser.add_argument(
-        "--data-seed",
-        default=0,
-        type=int,
-        metavar="INT",
-        help="Seed used when splitting data sets (default: 0)",
-    )
-    parser.add_argument(
-        "--sample",
-        default=1,
-        type=int,
-        metavar="INT",
-        help="Sub-sample the training set for learning curves",
-    )
 
-    # optimiser inputs
-    parser.add_argument(
-        "--epochs",
-        default=100,
-        type=int,
-        metavar="INT",
-        help="Number of training epochs to run (default: 100)",
-    )
-    parser.add_argument(
-        "--loss",
-        default="L1",
-        type=str,
-        metavar="STR",
-        help="Loss function if regression (default: 'L1')",
-    )
-    parser.add_argument(
-        "--robust",
-        action="store_true",
-        help="Specifies whether to use hetroskedastic loss variants",
-    )
-    parser.add_argument(
-        "--optim",
-        default="AdamW",
-        type=str,
-        metavar="STR",
-        help="Optimizer used for training (default: 'AdamW')",
-    )
-    parser.add_argument(
-        "--learning-rate",
-        "--lr",
-        default=3e-4,
-        type=float,
-        metavar="FLOAT",
-        help="Initial learning rate (default: 3e-4)",
-    )
-    parser.add_argument(
-        "--momentum",
-        default=0.9,
-        type=float,
-        metavar="FLOAT [0,1]",
-        help="Optimizer momentum (default: 0.9)",
-    )
-    parser.add_argument(
-        "--weight-decay",
-        default=1e-6,
-        type=float,
-        metavar="FLOAT [0,1]",
-        help="Optimizer weight decay (default: 1e-6)",
-    )
-
-    # graph inputs
-    parser.add_argument(
-        "--elem-fea-len",
-        default=64,
-        type=int,
-        metavar="INT",
-        help="Number of hidden features for elements (default: 64)",
-    )
-    parser.add_argument(
-        "--n-graph",
-        default=3,
-        type=int,
-        metavar="INT",
-        help="Number of message passing layers (default: 3)",
-    )
-
-    # ensemble inputs
-    parser.add_argument(
-        "--ensemble",
-        default=1,
-        type=int,
-        metavar="INT",
-        help="Number models to ensemble",
-    )
-    name_group = parser.add_mutually_exclusive_group()
-    name_group.add_argument(
-        "--model-name",
-        type=str,
-        default=None,
-        metavar="STR",
-        help="Name for sub-directory where models will be stored",
-    )
-    name_group.add_argument(
-        "--data-id",
-        default="roost",
-        type=str,
-        metavar="STR",
-        help="Partial identifier for sub-directory where models will be stored",
-    )
-    parser.add_argument(
-        "--run-id",
-        default=0,
-        type=int,
-        metavar="INT",
-        help="Index for model in an ensemble of models",
-    )
-
-    # restart inputs
-    use_group = parser.add_mutually_exclusive_group()
-    use_group.add_argument(
-        "--fine-tune",
-        type=str,
-        metavar="PATH",
-        help="Checkpoint path for fine tuning"
-    )
-    use_group.add_argument(
-        "--transfer",
-        type=str,
-        metavar="PATH",
-        help="Checkpoint path for transfer learning",
-    )
-    use_group.add_argument(
-        "--resume",
-        action="store_true",
-        help="Resume from previous checkpoint"
-    )
-
-    # task type
-    task_group = parser.add_mutually_exclusive_group()
-    task_group.add_argument(
-        "--classification",
-        action="store_true",
-        help="Specifies a classification task"
-    )
-    task_group.add_argument(
-        "--regression",
-        action="store_true",
-        help="Specifies a regression task"
-    )
-    parser.add_argument(
-        "--evaluate",
-        action="store_true",
-        help="Evaluate the model/ensemble",
-    )
-    parser.add_argument(
-        "--train",
-        action="store_true",
-        help="Train the model/ensemble"
-    )
-
-    # misc
-    parser.add_argument(
-        "--disable-cuda",
-        action="store_true",
-        help="Disable CUDA"
-    )
-    parser.add_argument(
-        "--log",
-        action="store_true",
-        help="Log training metrics to tensorboard"
-    )
-
-    args = parser.parse_args(sys.argv[1:])
-
-    if args.model_name is None:
-        args.model_name = f"{args.data_id}_s-{args.data_seed}_t-{args.sample}"
-
-    if args.regression:
-        args.task = "regression"
-    elif args.classification:
-        args.task = "classification"
-    else:
-        args.task = "regression"
-
-    args.device = (
-        torch.device('cuda:0')
-        if (not args.disable_cuda) and torch.cuda.is_available()
-        else torch.device("cpu")
-    )
-
-    return args
 
 def train_model_5(df, cuda, n_fold, model_name = "roost", kfolds=10,  random_seed_3=123):
-    args = input_parser()
-    args.disable_cuda = cuda
+    model_5_vars['disable_cuda'] = cuda
     print(torch.cuda.is_available())
-    args.device = 'cuda:0'
-    print(f"The model will run on the {args.device} device")
-    args.df = df
-    args.train = True
-    args.evaluate = True
-    args.task = 'classification'
-    args.test_path = pd.DataFrame([])
-    args.batch_size = 2048
-    args.epochs = 40
+    model_5_vars['device'] = 'cuda:0'
+    print(f"The model will run on the {model_5_vars['device']} device")
+    model_5_vars['df'] = df
+    model_5_vars['train'] = True
+    model_5_vars['evaluate'] = True
+    model_5_vars['task'] = 'classification'
+    model_5_vars['test_path'] = pd.DataFrame([])
+    model_5_vars['batch_size'] = 2048
+    model_5_vars['epochs'] = 100
 
     n = np.arange(len(df))
     train_X = n
@@ -561,146 +312,38 @@ def train_model_5(df, cuda, n_fold, model_name = "roost", kfolds=10,  random_see
         if i == n_fold:
             train_cv_X = train_X[train]
             val_cv_X = train_X[val]
-            args.model_name = model_name
+            model_5_vars['model_name'] = model_name
             # train_cv_index.append(train_cv_X)
             # test_cv_index.append(test_cv_index)
             # main(**vars(args), kf_train=train_cv_X, kf_test=test_X,kf_val=None)
-            main(**vars(args), kf_train=train_cv_X,  kf_val=val_cv_X)
+            main(**model_5_vars, kf_train=train_cv_X,  kf_val=val_cv_X)
         i = i+1
-
-
-def train_single_model_5(path, cuda, train_X, test_X, val_X):
-    args = input_parser()
-    args.disable_cuda = cuda
-    print(torch.cuda.is_available())
-    args.device = 'cuda:0'
-    print(f"The model will run on the {args.device} device")
-    args.data_path = path
-    args.train = True
-    args.evaluate = True
-    args.task = 'classification'
-
-    model_name = "roost"
-
-
-    main(**vars(args), kf_train=train_X, kf_test=test_X, kf_val=val_X)
 
 
 
 def model_5_predict(pd, cuda, nfolds, model_name = "roost"):
-    args = input_parser()
-    args.disable_cuda = cuda
+    model_5_vars['disable_cuda'] = cuda
     print(torch.cuda.is_available())
-    args.device = torch.device('cuda:0')
-    print(f"The model will run on the {args.device} device")
-    args.df = pd
-    args.train = False
-    args.evaluate = True
-    args.task = 'classification'
-    args.test_path = pd
+    model_5_vars['device'] = 'cuda:0'
+    print(f"The model will run on the {model_5_vars['device']} device")
+    model_5_vars['df'] = pd
+    model_5_vars['train'] = False
+    model_5_vars['evaluate'] = True
+    model_5_vars['task'] = 'classification'
+    model_5_vars['test_path'] = pd
+    model_5_vars['batch_size'] = 2048
+    model_5_vars['epochs'] = 100
 
     n = range(len(pd))
 
     for i in range(10):
         if i == nfolds:
-            args.model_name = model_name
-            main(**vars(args), predict=True)
-
-def abla_train_model_5(path,cuda, kfolds=10, random_seed_1 = 123, random_seed_2 = 20201221):
-    args = input_parser()
-    args.disable_cuda = cuda
-    print(torch.cuda.is_available())
-    args.device = 'cuda:0'
-    print(f"The model will run on the {args.device} device")
-    args.data_path = path
-    args.train = True
-    args.evaluate = True
-    args.task = 'classification'
-
-    kf = KFold(n_splits=kfolds, shuffle=True, random_state=random_seed_1)
-    data = pd.read_csv(path)
-    n = np.arange(len(data))
-    train_X,test_X,_,_ = train_test_split(n,n,test_size=0.1,random_state=random_seed_2)
-    train_X, _, train_y, _ = train_test_split(train_X, train_X, test_size=0.9, random_state=123456)#random_state not change, change test_size
-
-
-    train_cv_index = []
-    test_cv_index = []
-    i = 0
-    model_name = "abla_roost"
-
-    for train, val in kf.split(train_X):
-        if i == 0:
-            train_cv_X = train_X[train]
-            val_cv_X = train_X[val]
-            args.model_name = model_name+"_"+str(i)
-            # train_cv_index.append(train_cv_X)
-            # test_cv_index.append(test_cv_index)
-            # main(**vars(args), kf_train=train_cv_X, kf_test=test_X,kf_val=None)
-            main(**vars(args), kf_train=train_cv_X, kf_test=test_X, kf_val=val_cv_X)
-        i = i+1
-
-def abla_train_model_5_stack(path,cuda, kfolds=10, random_seed_1 = 123, random_seed_2 = 20201221):
-    args = input_parser()
-    args.disable_cuda = cuda
-    print(torch.cuda.is_available())
-    args.device = 'cuda:0'
-    print(f"The model will run on the {args.device} device")
-    args.data_path = path
-    args.train = True
-    args.evaluate = True
-    args.task = 'classification'
-
-    kf = KFold(n_splits=kfolds, shuffle=True, random_state=random_seed_1)
-    data = pd.read_csv(path)
-    n = np.arange(len(data))
-    train_X,test_X,_,_ = train_test_split(n,n,test_size=0.1,random_state=random_seed_2)
-    train_X, _, train_y, _ = train_test_split(train_X, train_X, test_size=0.9, random_state=123456)#random_state not change, change test_size
-
-
-    train_cv_index = []
-    test_cv_index = []
-    i = 0
-    model_name = "abla_roost_stack"
-
-    for train, val in kf.split(train_X):
-
-        train_cv_X = train_X[train]
-        val_cv_X = train_X[val]
-        args.model_name = model_name+"_"+str(i)
-        args.ensemble = 1
-        # train_cv_index.append(train_cv_X)
-        # test_cv_index.append(test_cv_index)
-        # main(**vars(args), kf_train=train_cv_X, kf_test=test_X,kf_val=None)
-        main(**vars(args), kf_train=train_cv_X, kf_test=test_X, kf_val=val_cv_X)
-        i = i+1
+            model_5_vars['model_name'] = model_name
+            main(**model_5_vars, predict=True)
 
 
 if __name__ == "__main__":
 
 
-    args = input_parser()
+
     print(torch.cuda.is_available())
-    print(f"The model will run on the {args.device} device")
-    # main(**vars(args))
-    n = np.arange(85014)
-    n,test_X,_,_ = train_test_split(n,n,test_size=0.1,random_state=20201221)
-    train_X, _, _, _ = train_test_split(n, n, test_size=0.9, random_state=123456)
-    kf = KFold(n_splits=10, shuffle=True, random_state=123)
-    train_cv_index = []
-    test_cv_index = []
-    i = 0
-    model_name = "roost"
-
-    for train, val in kf.split(train_X):
-        train_cv_X = train_X[train]
-        val_cv_X = train_X[val]
-        args.model_name = model_name+"_"+str(i)
-        # train_cv_index.append(train_cv_X)
-        # test_cv_index.append(test_cv_index)
-        # main(**vars(args), kf_train=train_cv_X, kf_test=test_X,kf_val=None)
-        main(**vars(args), kf_train=train_cv_X, kf_test=test_X, kf_val=val_cv_X)
-
-        i = i+1
-
-#--data-path ./data/datasets/mp_data_Roost.csv --train --evaluate --classification

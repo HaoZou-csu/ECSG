@@ -46,19 +46,19 @@ conda activate ecsg
 # Install pytorch according to hardware
 conda install pytorch==1.13.0 torchvision==0.14.0 torchaudio==0.13.0 pytorch-cuda=11.6 -c pytorch -c nvidia
 
-# ECSG requires torch-scatter. pip install it with
+# ECSG requires torch-scatter, pip install it with
 pip install https://data.pyg.org/whl/torch-1.13.0%2Bcu116/torch_scatter-2.0.9-cp38-cp38-linux_x86_64.whl
 
 # Install pymatgen and matminer
 pip install pymatgen matminer
 
-# install other tools in requirements.txt
+# Install other tools in requirements.txt
 pip install -r requirements.txt
 
 ```
 
 #### System Requirements
-Recommended Hardware: 128 GB RAM, 40 CPU processors, 4 TB disk storage, >=30 GB GPU 
+Recommended Hardware: 128 GB RAM, 40 CPU processors, 4 TB disk storage, 24 GB GPU 
 
 Recommended OS: Linux (Ubuntu 16.04, CentOS 7, etc.), Windows 11
 
@@ -67,24 +67,49 @@ Recommended OS: Linux (Ubuntu 16.04, CentOS 7, etc.), Windows 11
 You can train a demo model by:
 
 ```shell
-python train.py --name customized_model_name --path data/datasets/demo_mp_data.csv
+python train.py --name demo --path data/datasets/demo_mp_data.csv
 ```
 
 ## Reproducing published results
 
-### Reproducibility with training
+#### Reproducibility with training
 
 ```shell
 python train.py --name customized_model_name --path data/datasets/mp_data.csv
 ```
+The model takes input in the form csv files with materials-ids, composition strings and target values as the columns.
 
-### Reproducibility without training
+| material-id | composition | target |
+|-------------|-------------|--------|
+| 1           | Au1Cu1Tm2   | False  |
+| 2           | Eu5F1O12P3  | True   |
+| ...         | ...         | ...    |
 
-### Prediction
-python train.py --name customized_trained_model_name --path your_data_path
+After training, the training log will be saved in the log folder through tensorboard, the files containing models' structures and learned parameters will be saved in the models folder and the save folder, and the test results will be printed out and saved in the results folder.
+#### Train under different data size
 
-### Fluidity of Materials Project
-Please note that the Materials Project database is constantly changing. While this doesn't present any issues for the direct replication of our results or the application of new models trained on formation energy, it may complicate the strict replication of our results for models trained on multiple properties (e.g., band gap and formation energy learned simultaneously).
+You can set the --train_data_used parameter to specify the proportion of the training set to use.
+```shell
+python train.py --name customized_model_name --path data/datasets/mp_data.csv --train_data_used 0.6
+```
+
+#### Prediction
+After the ECSG trained, you can provide a csv file for predicting the stability of custom compounds after the ECSG trained. The format of the file is the same as the input when training the model.
+
+| material-id | composition | target |
+|-------------|-------------|--------|
+| 1           | Au1Cu1Tm2   | ---    |
+| 2           | Eu5F1O12P3  | ---    |
+| ...         | ...         | ...    |
+The target column can be empty.
+
+
+For example, after training the demo model, you can enter the following command to predict the thermodynamic stability of the compound you are interested in.
+```shell
+python ecsg_predict.py --name customized_trained_model_name --path your_data.csv
+```
+
+
 
 ## Contact
 

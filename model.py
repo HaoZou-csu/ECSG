@@ -25,7 +25,6 @@ import gc
 
 
 
-write = SummaryWriter('log/t2z1')
 
 
 
@@ -33,7 +32,7 @@ class Elfrac():
     def __init__(self, name, number, save_model=True):
         self.model = XGBClassifier()
         self.model_name = 'Elfrac' + '_' + name + '_' +  str(number)
-        self.save_path = './save/' + self.model_name + '.json'
+        self.save_path = './models/' + self.model_name + '.json'
         self.save_model = save_model
 
     def train(self, X, y, weight):
@@ -65,11 +64,10 @@ class Elfrac():
 class Magpie(Elfrac):
     def __init__(self, name, number, save_model=True):
         super(Magpie, self).__init__(name, number, save_model)
-        from sklearn.ensemble import RandomForestClassifier
         self.model_name = 'Magpie' + '_' + name + '_' +  str(number)
 
         self.model = XGBClassifier()
-        self.save_path = './save/' + self.model_name + '.json'  ##json if xgboost   else joblib
+        self.save_path = './models/' + self.model_name + '.json'  ##json if xgboost   else joblib
 
         # self.model = RandomForestClassifier()
         # self.save_path = './save/' + self.model_name + '.joblib'   ##json if xgboost   else joblib
@@ -92,7 +90,7 @@ class Meredig(Elfrac):
         super(Meredig, self).__init__(name, number, save_model)
         self.model = XGBClassifier()
         self.model_name = 'Meredig' + '_' + name + '_' +  str(number)
-        self.save_path = './save/' + self.model_name + '.json'
+        self.save_path = './models/' + self.model_name + '.json'
 
 class Roost():
     def __init__(self, path, name, number):
@@ -100,16 +98,16 @@ class Roost():
         self.save_path = './save/' + self.model_name
         self.data_path = path
 
-    def train(self, df, cuda, n_fold, kfolds=10,  random_seed_3=123):
+    def train(self, df, cuda, device, epoch, batch_size,n_fold, kfolds=10,  random_seed_3=123):
         # path = self.data_path
         model_name = self.model_name
-        train_model_5(df, cuda,  n_fold, model_name, kfolds=kfolds, random_seed_3=random_seed_3)
+        train_model_5(df, cuda, device, epoch, batch_size, n_fold, model_name, kfolds=kfolds, random_seed_3=random_seed_3)
 
     def predict(self, df, cuda, n_fold):
         model_name = self.model_name
         df_new = df.reset_index(drop=True)
         model_5_predict(df_new, cuda, n_fold, model_name)
-        results = pd.read_csv(f'results/predict_results_{model_name}_r-0.csv')
+        results = pd.read_csv(f'results/Roost/predict_results_{model_name}_r-0.csv')
         results.rename(columns={'id':'materials-id'}, inplace=True)
         pre_y = pd.merge(df_new, results, on='materials-id')['class-1-pred_0_pro'].values
         return pre_y
@@ -229,7 +227,7 @@ def get_right_count(output, target):
 class ElemNet():
     def __init__(self, name, number, save_model=True):
         self.model_name = 'ElemNet' + '_' + name + '_' + str(number)
-        self.save_path = './save/' + self.model_name
+        self.save_path = './models/' + self.model_name
         self.save_model = save_model
 
     def build_model(self):
@@ -295,8 +293,8 @@ class ElemNet():
             # print(f"test_loss=: {test_loss:>8f} ")
             if test_loss < min_loss:
                 min_loss = test_loss
-                if self.save_model:
-                    torch.save(self.model.state_dict(), self.save_path + '.best')
+                # if self.save_model:
+                #     torch.save(self.model.state_dict(), self.save_path + '.best')
 
             if acc > max_acc:
                 max_acc = acc
@@ -315,16 +313,18 @@ class ElemNet():
             test_loss, min_loss, acc, max_acc = self.valuate(test_loader, criterion, min_loss, max_acc)
 
 
-            write.add_scalar('loss/train_' + self.model_name, train_loss, i)
-            write.add_scalar('acc/train_' + self.model_name, train_acc, i)
-            write.add_scalar('loss/test_' + self.model_name, test_loss, i)
-            write.add_scalar('acc/test_' + self.model_name, acc, i)
+            writer.add_scalar('loss/train_' + self.model_name, train_loss, i)
+            writer.add_scalar('acc/train_' + self.model_name, train_acc, i)
+            writer.add_scalar('loss/test_' + self.model_name, test_loss, i)
+            writer.add_scalar('acc/test_' + self.model_name, acc, i)
             dur = end_time - start_time
 
             print(f'epoch {i}, time:{dur:>4f}         ==============================================')
             print(f'train_loss is {train_loss:>5f}, test_loss is {test_loss:>5f}, acc is {acc:>3f}, max acc is {max_acc:>3f}')
             if test_loss == min_loss:
                 print(f'test_loss < min_loss, save {self.model_name}')
+            if self.save_model:
+                torch.save(self.model.state_dict(), self.save_path + '.pth')
 
     def predict(self, X):
         self.model
@@ -337,7 +337,7 @@ class ATCNN(ElemNet):
     def __init__(self, name, number, save_model):
         super(ATCNN, self).__init__(name, number, save_model)
         self.model_name = 'ATCNN' + '_' + name + '_' + str(number)
-        self.save_path = './save/' + self.model_name
+        self.save_path = './models/' + self.model_name
 
     def build_model(self):
         model = ATCNN_model()
@@ -347,7 +347,7 @@ class ECCNN(ElemNet):
     def __init__(self, name, number, save_model):
         super().__init__(name, number, save_model)
         self.model_name = 'ECCNN' + '_' + name + '_' + str(number)
-        self.save_path = './save/' + self.model_name
+        self.save_path = './models/' + self.model_name
 
     def build_model(self):
         model = ECCNN_model()

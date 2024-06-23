@@ -91,12 +91,12 @@ models
 ├── Magpie_demo_4.json
 ```
 
-## Prediction the thermaldynamic stability of materials
-You can download the pre-trained model file from the following link:
+## Prediction
+To predict the thermodynamic stability of materials, You can download the pre-trained model files from the following link:
 
 [Download Pre-trained Model](https://drive.google.com/drive/folders/1CuwLst2e-5FiSh-wdiWUhlAKjTAzXVRo?usp=sharing)
 
-Place the downloaded model file in the **models** folder in the project root directory.
+Place all the downloaded model files in the **models** folder in the project root directory.
 Use the following command to make predictions. Replace **your_data.csv** with the path to your data file containing the compounds of interest:
 ```shell
 python predict.py --name jarvis_3d --path your_data.csv

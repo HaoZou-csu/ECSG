@@ -22,8 +22,8 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.tensorboard import SummaryWriter
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 def load_data(path):
     data = pd.read_csv(path)
@@ -45,7 +45,7 @@ def featurization(formulas, index, load_from_local=False):
         feature = [f_0, f_1, f_2]
 
     else:
-        res = open("D:/programming/ECSG_git/data/file", 'rb')
+        res = open("/data/file", 'rb')
         data = pickle.load(res)
         f_0 = data[0][index,:]
         f_1 = data[1][index,:]
@@ -60,24 +60,24 @@ def featurization(formulas, index, load_from_local=False):
 def load_model(path, name, j, i):
 
     if i == 0:
-        m_2_path = 'save/Magpie' + '_' + name + '_' + str(j) + '.json'
-        m_2 = XGBClassifier()
-        m_2.load_model(m_2_path)
-        return m_2
+        m_0_path = 'models/Magpie' + '_' + name + '_' + str(j) + '.json'
+        m_0 = XGBClassifier()
+        m_0.load_model(m_0_path)
+        return m_0
 
 
     if i == 1:
-        m_5_path = './models/'
-        m_5 = Roost(m_5_path, name, j)
-        return m_5
+        m_1_path = './models/'
+        m_1 = Roost(m_1_path, name, j)
+        return m_1
 
 
     if i == 2:
-        m_7_path = 'save/ECCNN'+ '_' + name + '_' + str(j) + '.best'
-        state_dict_7 = torch.load(m_7_path)
-        m_7 = ECCNN_model()
-        m_7.load_state_dict(state_dict_7)
-        return m_7
+        m_2_path = 'models/ECCNN'+ '_' + name + '_' + str(j) + '.pth'
+        state_dict_2 = torch.load(m_2_path)
+        m_2 = ECCNN_model()
+        m_2.load_state_dict(state_dict_2)
+        return m_2
 
 
 
@@ -126,7 +126,7 @@ def train_ensemble(data, weight, name, model_list, n_fold, device, lr, criterion
                     batchsize_0 = batchsize
 
                 if i == 1:
-                    model_i.train(data, False,  n_fold, folds,  random_seed_3)
+                    model_i.train(data, False,  device, epoch, batchsize, n_fold, folds,  random_seed_3)
 
                 elif i == 0:
                     model_i.train(train_cv_X_i, train_cv_y, train_cv_weight)
@@ -154,7 +154,7 @@ def train_meta(X, y, name, save_model=True):
     model = LinearRegression(positive=True)
     model = LinearRegression()
     model.fit(X,y)
-    joblib.dump(model, f'save/{name}_meta_model.pkl')
+    joblib.dump(model, f'models/{name}_meta_model.pkl')
 
 def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0'):
     formulas = data['composition'].values
@@ -213,33 +213,6 @@ def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0'):
     return pre_y
 
 
-
-def proportional_selection(U_X, pre_U_y_prob, n):
-    '''
-
-    Args:
-        U_X:
-        pre_U_y_prob:
-        n: n is the portion of selected sample
-
-    Returns:
-
-    '''
-    assert U_X.shape[0] == pre_U_y_prob.shape[0]
-
-    selected_number = int(U_X.shape[0] * n)
-    class_1_pre_U_y_prob = pre_U_y_prob.ravel()
-    rank_index = np.argsort(class_1_pre_U_y_prob)
-    ##从小到大预测为1的概率
-    class_0_index = rank_index[:selected_number]
-    class_1_index = rank_index[-selected_number:]
-    rest_index = rank_index[selected_number: -selected_number]
-
-    selected_U_X_0 = U_X[class_0_index,:]
-    selected_U_X_1 = U_X[class_1_index,:]
-    rest_U_X = U_X[rest_index]
-    return selected_U_X_0, selected_U_X_1, rest_U_X
-
 def each_fold_path(data, n_fold, folds=10, random_seed_3=123):
     train_for = data
     kf = KFold(n_splits=folds, shuffle=True, random_state=random_seed_3)
@@ -266,7 +239,7 @@ def get_train_data(data, weight, name, model_list, device, lr, criterion, log= T
     train_y = []
     for j in range(folds):
         fold_pd, fold_y = each_fold_path(data, j, folds= folds, random_seed_3=random_seed_3)
-        pre_y = predict_ensemble('save', name, model_list, j, fold_pd)
+        pre_y = predict_ensemble('models', name, model_list, j, fold_pd)
         pre_y = [n.ravel() for n in pre_y]
         pre_y = np.array(pre_y)
         pre_y = np.swapaxes(pre_y, axis1= 0, axis2=1)
@@ -312,7 +285,7 @@ def Performance( pre_test_y_prob, test_y):
 def evaluate(name, data, model_list, folds=10):
     pre_test_y = []
     for i in range(folds):
-        pre_test_y_i = predict_ensemble('save', name, model_list, i, data)
+        pre_test_y_i = predict_ensemble('models', name, model_list, i, data)
         pre_test_y.append(pre_test_y_i)
 
     pre_test_y = np.array(pre_test_y)
@@ -321,7 +294,7 @@ def evaluate(name, data, model_list, folds=10):
     pre_test = np.swapaxes(pre_test, axis1=0, axis2=1)
     pre_test = pre_test.squeeze(axis=2)
 
-    model = joblib.load(f'save/{name}_meta_model.pkl')
+    model = joblib.load(f'models/{name}_meta_model.pkl')
     results = model.predict(pre_test)
 
     target_y = data['target'].values
@@ -331,33 +304,60 @@ def evaluate(name, data, model_list, folds=10):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--path", type=str, default='data/datasets/demo_mp_data.csv')
-    parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--batchsize", type=int, default=2048)
-    parser.add_argument("--train", type=bool, default=True, help='train or not')
-    parser.add_argument("--name", type=str)
-    parser.add_argument("--train_data_used", type=float, default=1.0)
+    # Initialize the parser
+    parser = argparse.ArgumentParser(description="Training script for the machine learning model")
+
+    # Add arguments to the parser
+    parser.add_argument("--path", type=str, default='data/datasets/demo_mp_data.csv',
+                        help="Path to the dataset (default: data/datasets/demo_mp_data.csv")
+    parser.add_argument("--epochs", type=int, default=100,
+                        help="Number of epochs to train the model (default: 100)")
+    parser.add_argument("--batchsize", type=int, default=2048,
+                        help="Batch size for training (default: 2048)")
+    parser.add_argument("--train", type=bool, default=True,
+                        help="Boolean flag to indicate whether to train the model, default: True")
+    parser.add_argument("--name", type=str, help="Name of the experiment or model")
+    parser.add_argument("--train_data_used", type=float, default=1.0,
+                        help="Fraction of training data to be used")
+    parser.add_argument("--device", type=str, default='cuda:0',
+                        help="Device to run the training on, e.g., 'cuda:0' or 'cpu'")
+    parser.add_argument("--folds", type=int, default=5,
+                        help="Number of folds for training ECSG (default: 5)")
+    parser.add_argument("--lr", type=float, default=1e-3,
+                        help="Learning rate for the optimizer (default: 0.001)")
+    parser.add_argument("--save_model", type=bool, default=True,
+                        help="Whether to save trained models (default: True)")
+    parser.add_argument("--load_from_local", type=bool, default=False,
+                        help="Load features from local or generate features from scratch (default: False)")
+    parser.add_argument("--prediction_model", type=bool, default=False,
+                        help="Train a model for predicting or testing (default: False)")
+    parser.add_argument("--train_meta_model", type=bool, default=True,
+                        help="Train a single model or train the ensemble model (default: True)")
+    parser.add_argument("--performance_test", type=bool, default=True,
+                        help="Whether to test the performance of trained model (default: True)")
 
     args = parser.parse_args()
     print(args.name)
+    device = args.device
 
     """tasks type"""
     train = True
-    save_model = True   ## wheather to save trained models
-    load_from_local = False  ## load features from local  or generate features from scrath
-    prediction_model = False ## train a model for predicting or testing
-    train_single = False   ## train a single model or train the ensemble model
+    save_model = args.save_model   ## wheather to save trained models
+    load_from_local = args.load_from_local  ## load features from local  or generate features from scrath
+    prediction_model = args.prediction_model  ## train a model for predicting or testing
+    train_meta_model = args.train_meta_model   ## train a single model or train the ensemble model
+    performance_test = args.performance_test
+
+    model_list = [0,1,2]
+
 
     """hyperparameters"""
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     criterion = torch.nn.BCELoss(reduction='sum')
     batchsize = args.batchsize
-    lr = 1e-3
+    lr = args.lr
     epoch = args.epochs
     name = args.name
-    model_list = [0,1,2]
-    folds = 5
+    folds = args.folds
     train_data_used = args.train_data_used
 
 
@@ -384,13 +384,27 @@ if __name__ == '__main__':
         weight = np.ones(len(train_X)) / len(train_X)
         train_data, train_y = get_train_data(train_X, weight, name, model_list, device, lr, criterion, True, batchsize=1024, epoch=epoch, folds=folds,  random_seed_3=random_seed_3, save_model=save_model, train=True)
 
-        if not train_single:
+        if train_meta_model:
             train_meta(train_data, train_y, name)
-            if not os.path.exists('save/data/'+ name):
-                os.mkdir('save/data/'+ name)
-            np.save('save/data/'+ name +'/train_data.npy', train_data)
-            np.save('save/data/'+ name +'/train_y.npy', train_y)
+            # if not os.path.exists('save/data/'+ name):
+            #     os.mkdir('save/data/'+ name)
+            # np.save('save/data/'+ name +'/train_data.npy', train_data)
+            # np.save('save/data/'+ name +'/train_y.npy', train_y)
+
+    if performance_test:
+        pre_test, performance, results = evaluate(name, test_X, model_list, folds=folds)
+        accuracy, precision, recall, f1, fnr, auc_score, aupr, max_f1 = performance
 
 
-    pre_test, performance, results = evaluate(name, test_X, model_list, folds=folds)
-    print(performance)
+        print(f"""
+        Performance Metrics:
+        ====================
+        Accuracy: {accuracy}
+        Precision: {precision}
+        Recall: {recall}
+        F1 Score: {f1}
+        False Negative Rate (FNR): {fnr}
+        AUC Score: {auc_score}
+        AUPR: {aupr}
+        Max F1: {max_f1}
+        """)

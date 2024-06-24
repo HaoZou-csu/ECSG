@@ -10,16 +10,14 @@ Machine learning offers a promising avenue for expediting the discovery of new c
 
 ## Installation
 
-#### Installation
+#### Required packeages
 
-- Prerequisites: \
+To use this project, you need the following packages installed:
+
 [Python3.*](https://www.python.org/) (version>=3.8)\
 [PyTorch](https://pytorch.org/) (version >=1.9.0, <=1.16.0) \
 [matminer](https://hackingmaterials.lbl.gov/matminer/)\
-[pymatgen](https://pymatgen.org/)
-
-
-- Dependencies: \
+[pymatgen](https://pymatgen.org/)\
 numpy\
 pandas\
 scikit-learn\
@@ -31,7 +29,8 @@ scipy\
 pytest\
 smact
 
-
+#### Step-by-Step Installation
+Alternatively, you can install all required packages as follows:
 ```shell
 # download ecsg
 git clone https://github.com/haozou-csu/ECSG
@@ -133,7 +132,7 @@ The model takes **input** in the form CSV files with materials-ids, composition 
 
 After training, the training log will be saved in the **log** folder through tensorboard, the files containing models' structures and learned parameters will be saved in the **models** folder and the save folder, and the test results will be printed out and saved in **results** folder.
 
-If set `performance_test=True` and a test dataset is defined, the performance of the model will be printed as following:
+If set `performance_test=True` and a test dataset is defined, the performance of the model will be printed as follows:
 ```text
         Performance Metrics:
         ====================
@@ -190,7 +189,7 @@ You can extract features once and save them using `feature.py`. Run the followin
 python feature.py --path your_data.csv
 ```
 
-Then load the saved features during training by setting the --load_from_local flag to True in train.py. This will load the features from the local storage instead of extracting them again, saving significant time:
+Then load the saved features during training by setting the `--load_from_local` flag to True in `train.py`. This will load the features from the local storage instead of extracting them again, saving significant time:
 
 
 ## Contact

@@ -118,11 +118,12 @@ The prediction results will be saved in the **results/meta** folder under the fi
 ## Reproducing published results
 
 #### Reproducibility with training
+Run the following command to start training:
 
 ```shell
 python train.py --name customized_model_name --path data/datasets/mp_data.csv
 ```
-The model takes **input** in the form CSV files with materials-ids, composition strings and target values as the columns.
+In the **data/datasets** folder, there are instructions to download all the datasets in this study. Ensure that the model takes **input** in the form CSV files with materials-ids, composition strings and target values as the columns.
 
 | material-id | composition | target |
 |-------------|-------------|--------|

@@ -183,33 +183,36 @@ python train.py --name customized_model_name --path data/datasets/mp_data.csv --
 ```
 Please type `python train.py --h` for more help.
 ```shell
-usage: train.py [-h] [--path PATH] [--epochs EPOCHS] [--batchsize BATCHSIZE] [--train TRAIN] [--name NAME] [--train_data_used TRAIN_DATA_USED] [--device DEVICE] [--folds FOLDS] [--lr LR] [--save_model SAVE_MODEL] [--load_from_local LOAD_FROM_LOCAL] [--prediction_model PREDICTION_MODEL]
-                [--train_meta_model TRAIN_META_MODEL]
+usage: train.py [-h] [--path PATH] [--epochs EPOCHS] [--batchsize BATCHSIZE] [--train TRAIN] [--name NAME] [--train_data_used TRAIN_DATA_USED] [--device DEVICE] [--folds FOLDS] [--lr LR] [--save_model SAVE_MODEL] [--load_from_local LOAD_FROM_LOCAL] [--feature_path FEATURE_PATH]
+                [--prediction_model PREDICTION_MODEL] [--train_meta_model TRAIN_META_MODEL] [--performance_test PERFORMANCE_TEST]
 
 Training script for the machine learning model
 
 optional arguments:
   -h, --help            show this help message and exit
   --path PATH           Path to the dataset (default: data/datasets/demo_mp_data.csv
-  --epochs EPOCHS       Number of epochs to train the model (default: 100)
+  --epochs EPOCHS       Number of epochs to train the model, default: 100
   --batchsize BATCHSIZE
                         Batch size for training (default: 2048)
-  --train TRAIN         Boolean flag to indicate whether to train the model, default: True
+  --train TRAIN         whether to train the model, 1: true, 0: false, default: 1
   --name NAME           Name of the experiment or model
   --train_data_used TRAIN_DATA_USED
                         Fraction of training data to be used
-  --device DEVICE       Device to run the training on, e.g., 'cuda:0' or 'cpu'
-  --folds FOLDS         Number of folds for training ECSG (default: 5)
+  --device DEVICE       Device to run the training on, e.g., 'cuda:0' or 'cpu', default: 'cuda:0'
+  --folds FOLDS         Number of folds for training ECSG, default: 5
   --lr LR               Learning rate for the optimizer (default: 0.001)
   --save_model SAVE_MODEL
-                        Whether to save trained models (default: True)
+                        Whether to save trained models , 1: true, 0: false, default: 1
   --load_from_local LOAD_FROM_LOCAL
-                        Load features from local or generate features from scratch (default: False)
+                        Load features from local or generate features from scratch , 1: true, 0: false, default: 0
+  --feature_path FEATURE_PATH
+                        Path to processed features, default: None
   --prediction_model PREDICTION_MODEL
-                        Train a model for predicting or testing (default: False)
+                        Train a model for predicting or testing , 1: true, 0: false, default: 0
   --train_meta_model TRAIN_META_MODEL
-                        Train a single model or train the ensemble model (default: True)
-
+                        Train a single model or train the ensemble model , 1: true, 0: false, default: 1
+  --performance_test PERFORMANCE_TEST
+                        Whether to test the performance of trained model , 1: true, 0: false, default: 1
 ```
 
 ## Contact

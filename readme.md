@@ -1,10 +1,14 @@
 ## ECSG
 
-Machine learning offers a promising avenue for expediting the discovery of new compounds by accurately predicting their thermodynamic stability. This approach provides significant advantages in terms of time and resource efficiency compared to traditional experimental and modeling methods. However, most existing models are constructed based on specific domain knowledge, potentially introducing biases that impact their performance. To overcome this limitation, we propose a novel machine learning framework rooted in electron configuration, further enhanced through stack generalization with two additional models grounded in diverse domain knowledge. Experimental results validate the efficacy of our model in accurately predicting the stability of compounds, achieving an impressive Area Under the Curve (AUC) score of 0.988. Notably, our model demonstrates exceptional efficiency in sample utilization, requiring only one-seventh of the data used by existing models to achieve the same performance. 
+Machine learning offers a promising avenue for expediting the discovery of new compounds by accurately predicting their thermodynamic stability. This approach provides significant advantages in terms of time and resource efficiency compared to traditional experimental and modeling methods. However, most existing models are constructed based on specific domain knowledge, potentially introducing biases that impact their performance. 
+
+To overcome this limitation, we propose a novel machine learning framework **Electron Configuration Stacked Generalization (ECSG)**, rooted in electron configuration, further enhanced through stack generalization with two additional models grounded in diverse domain knowledge. Experimental results validate the efficacy of our model in accurately predicting the stability of compounds, achieving an impressive Area Under the Curve (AUC) score of 0.988. Notably, our model demonstrates exceptional efficiency in sample utilization, requiring only one-seventh of the data used by existing models to achieve the same performance. 
 ## Contents
-- [Installation](#installation-1)
-- [Prediction](#prediction)
+- [Installation](#installation)
 - [Demo data](#demo-data)
+- [Input](#input)
+- [Output](#output)
+- [Usage](#usage)
 - [Experiment reproduction](#experiment-reproduction)
 - [Contact](#contact)
 
@@ -90,16 +94,11 @@ models
 ├── Magpie_demo_4.json
 ```
 
-## Prediction
-To predict the thermodynamic stability of materials, You can download the pre-trained model files from the following link:
+## Input
+This project provides two feature processing schemes, and the corresponding inputs are different.
+#### 1、Feature Processing at Runtime
+In this scheme, users need to provide a CSV file containing the materials-id and composition. The program will process the CSV file and generate features at runtime.
 
-[Download Pre-trained Model](https://drive.google.com/drive/folders/12KcFrYxGNUhQlRy_br0vs98mMsSg-eF0?usp=sharing)
-
-Place all the downloaded model files in the **models** folder in the project root directory.
-Use the following command to make predictions. Replace **your_data.csv** with the path to your data file containing the compounds of interest:
-```shell
-python predict.py --name jarvis_3d --path your_data.csv
-```
 The input CSV file must contain the following columns:
 
 - material-id: Unique identifier for each material.
@@ -113,7 +112,37 @@ Example of a valid CSV file:
 | 2           | Al2O3       | 
 | ...         | ...         | 
 
+
+#### 2、Load Preprocessed Feature File
+Given the large datasets, feature construction can be quite time-consuming. Additionally, the training process involves cross-validation, which can further increase the computation time.
+Therefore, we provide a solution that can load features locally to save time.
+
+You can extract features once and save them using `feature.py`. Run the following command to save the features:
+```shell
+python feature.py --path your_data.csv --feature_path feature_file
+```
+For more details, please refer to [Usage](#usage).
+
+## Output
 The prediction results will be saved in the **results/meta** folder under the filename **f'{name}_predict_results.csv'**, where **{name}** corresponds to the name of your customized model name. The stability prediction results will be in the target column of the CSV file.
+
+
+## Usage
+#### Prediction
+To predict the thermodynamic stability of materials, You can download the pre-trained model files from the following link:
+
+[Download Pre-trained Model](https://drive.google.com/drive/folders/12KcFrYxGNUhQlRy_br0vs98mMsSg-eF0?usp=sharing)
+
+Place all the downloaded model files in the **models** folder in the project root directory.
+Use the following command to make predictions. Replace **your_data.csv** with the path to your data file containing the compounds of interest:
+```shell
+python predict.py --name jarvis_3d --path your_data.csv
+```
+or use local feature file:
+```shell
+python predict.py --name jarvis_3d --path your_data.csv --load_from_local True --feature_path feature_file
+```
+
 
 ## Experiment reproduction
 
@@ -137,14 +166,14 @@ If set `performance_test=True` and a test dataset is defined, the performance of
 ```text
         Performance Metrics:
         ====================
-        Accuracy: 0.67
-        Precision: 0.6923076923076923
-        Recall: 0.5625
-        F1 Score: 0.6206896551724138
-        False Negative Rate (FNR): 0.3442622950819672
-        AUC Score: 0.8004807692307693
-        AUPR: 0.7195406377125553
-        Max F1: 0.7868852459016393
+        Accuracy: 0.9697802197802198
+        Precision: 0.8252212389380531
+        Recall: 0.8126361655773421
+        F1 Score: 0.8188803512623489
+        False Negative Rate (FNR): 0.017172523961661343
+        AUC Score: 0.9918534811556208
+        AUPR: 0.9139832154286772
+        Max F1: 0.8400412796697626
 ```
 #### Train under different data size
 
@@ -182,16 +211,6 @@ optional arguments:
                         Train a single model or train the ensemble model (default: True)
 
 ```
-#### Improve the efficiency of feature construction
-Given the large datasets, feature construction can be quite time-consuming. Additionally, the training process involves cross-validation, which can further increase the computation time.
-
-You can extract features once and save them using `feature.py`. Run the following command to save the features:
-```shell
-python feature.py --path your_data.csv
-```
-
-Then load the saved features during training by setting the `--load_from_local` flag to True in `train.py`. This will load the features from the local storage instead of extracting them again, saving significant time:
-
 
 ## Contact
 

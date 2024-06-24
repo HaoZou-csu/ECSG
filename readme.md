@@ -5,7 +5,7 @@ Machine learning offers a promising avenue for expediting the discovery of new c
 - [Installation](#installation-1)
 - [Prediction](#prediction)
 - [Demo data](#demo-data)
-- [Reproducing published results](#reproducing-published-results)
+- [Experiment reproduction](#Experiment reproduction)
 - [Contact](#contact)
 
 ## Installation
@@ -115,7 +115,7 @@ Example of a valid CSV file:
 
 The prediction results will be saved in the **results/meta** folder under the filename **f'{name}_predict_results.csv'**, where **{name}** corresponds to the name of your customized model name. The stability prediction results will be in the target column of the CSV file.
 
-## Reproducing published results
+## Experiment reproduction
 
 #### Reproducibility with training
 Run the following command to start training:

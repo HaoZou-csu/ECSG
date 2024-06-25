@@ -26,11 +26,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--path", type=str, default='data/datasets/demo_mp_data.csv')
-    parser.add_argument("--save_path", type=str, default='data/datasets/demo_feature')
+    parser.add_argument("--feature_path", type=str, default='data/datasets/demo_feature')
 
     args = parser.parse_args()
     data_path = args.path
-    save_path = args.save_path
+    save_path = args.feature_path
 
     data_comp = pd.read_csv(data_path)['composition'].values
     features = featurization(data_comp)

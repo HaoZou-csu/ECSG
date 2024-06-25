@@ -140,7 +140,7 @@ python predict.py --name jarvis_3d --path your_data.csv
 ```
 or use local feature file:
 ```shell
-python predict.py --name jarvis_3d --path your_data.csv --load_from_local True --feature_path feature_file
+python predict.py --name jarvis_3d --path your_data.csv --load_from_local 1 --feature_path feature_file
 ```
 
 
@@ -152,7 +152,7 @@ Run the following command to start training:
 ```shell
 python train.py --name customized_model_name --path data/datasets/mp_data.csv
 ```
-In the **data/datasets** folder, there are instructions to download all the datasets in this study. Ensure that the model takes **input** in the form CSV files with materials-ids, composition strings and target values as the columns.
+In the **data/datasets** folder, there are [instructions](https://github.com/HaoZou-csu/ECSG/blob/main/data/datasets/readme.md) to download all the datasets in this study. Ensure that the model takes **input** in the form CSV files with materials-ids, composition strings and target values as the columns.
 
 | material-id | composition | target |
 |-------------|-------------|--------|

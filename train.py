@@ -35,7 +35,7 @@ def get_formulas(data):
     return formulas, y
 
 
-def featurization(formulas, index, load_from_local=False):
+def featurization(formulas, index, feature_path = None, load_from_local=False):
     if not load_from_local:
 
         f_0 = Magpie_fea(formulas)
@@ -45,7 +45,7 @@ def featurization(formulas, index, load_from_local=False):
         feature = [f_0, f_1, f_2]
 
     else:
-        res = open("/data/file", 'rb')
+        res = open(feature_path, 'rb')
         data = pickle.load(res)
         f_0 = data[0][index,:]
         f_1 = data[1][index,:]
@@ -88,7 +88,7 @@ def bulid_models(path, name, j, save_model):
     model = [m_0, m_1, m_2]
     return model
 
-def train_ensemble(data, weight, name, model_list, n_fold, device, lr, criterion, writer, batchsize, epoch, folds=10, random_seed_3=123, save_model=True):
+def train_ensemble(data, weight, name, model_list, n_fold, device, lr, criterion, writer, batchsize, epoch, folds=10, random_seed_3=123, save_model=True, feature_path=None, load_from_local=False):
     formulas = data['composition'].values
     y = data['target'].values
 
@@ -107,8 +107,8 @@ def train_ensemble(data, weight, name, model_list, n_fold, device, lr, criterion
             # train_cv_y = train_y[train]
             # val_cv_y = train_y[val]
 
-            train_cv_X = featurization(formulas[train], train_cv_for, False)
-            val_cv_X = featurization(formulas[val], val_cv_for, False)
+            train_cv_X = featurization(formulas[train], train_cv_for, feature_path, load_from_local)
+            val_cv_X = featurization(formulas[val], val_cv_for, feature_path, load_from_local)
 
             train_cv_weight = weight[train]
 
@@ -126,11 +126,17 @@ def train_ensemble(data, weight, name, model_list, n_fold, device, lr, criterion
                     batchsize_0 = batchsize
 
                 if i == 1:
+                    print('/n'
+                        '======================Train Roost========================\n')
                     model_i.train(data, False,  device, epoch, batchsize, n_fold, folds,  random_seed_3)
 
                 elif i == 0:
+                    print('/n'
+                        '======================Train Magpie========================\n')
                     model_i.train(train_cv_X_i, train_cv_y, train_cv_weight)
                 else:
+                    print('/n'
+                        '======================Train ECCNN========================\n')
                     train_cv_X_i = torch.from_numpy(np.float32(train_cv_X_i))
                     train_cv_y = train_cv_y.astype(np.float32)
                     train_cv_y = torch.from_numpy(train_cv_y.reshape(-1, 1))
@@ -156,11 +162,11 @@ def train_meta(X, y, name, save_model=True):
     model.fit(X,y)
     joblib.dump(model, f'models/{name}_meta_model.pkl')
 
-def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0'):
+def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0', feature_path=None, load_from_local=False):
     formulas = data['composition'].values
     y = data['target'].values
     index = data['materials-id'].values
-    features = featurization(formulas,index, False)
+    features = featurization(formulas, index, feature_path, load_from_local)
 
     pre_y = []
     # for i in range(len(features)):
@@ -204,7 +210,7 @@ def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0'):
 
 
         else:
-            y = m.predict(data, False, j)
+            y = m.predict(data, False, device,  j)
 
             pre_y.append(y)
             torch.cuda.empty_cache()
@@ -229,17 +235,22 @@ def each_fold_path(data, n_fold, folds=10, random_seed_3=123):
 
 
 
-def get_train_data(data, weight, name, model_list, device, lr, criterion, log= True, batchsize=1024, epoch=100, folds=10,  random_seed_3=123, save_model=True, train=True):
+def get_train_data(data, weight, name, model_list, device, lr, criterion, log= True, batchsize=1024, epoch=100, folds=10,  random_seed_3=123, save_model=True, train=True, feature_path= None, load_from_local=False):
     if log:
         writer = SummaryWriter('./log/' + name)
     if train:
         for i in range(folds):
-            train_ensemble(data, weight, name, model_list, i, device, lr, criterion, writer, batchsize, epoch, folds=folds, random_seed_3=random_seed_3, save_model=save_model)
+            print(
+                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+                f"--------------Train on fold {i + 1}--------------\n"
+                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+            )
+            train_ensemble(data, weight, name, model_list, i, device, lr, criterion, writer, batchsize, epoch, folds=folds, random_seed_3=random_seed_3, save_model=save_model, feature_path=feature_path, load_from_local=load_from_local)
     train_data = []
     train_y = []
     for j in range(folds):
         fold_pd, fold_y = each_fold_path(data, j, folds= folds, random_seed_3=random_seed_3)
-        pre_y = predict_ensemble('models', name, model_list, j, fold_pd)
+        pre_y = predict_ensemble('models', name, model_list, j, fold_pd, load_from_local=False)
         pre_y = [n.ravel() for n in pre_y]
         pre_y = np.array(pre_y)
         pre_y = np.swapaxes(pre_y, axis1= 0, axis2=1)
@@ -311,37 +322,40 @@ if __name__ == '__main__':
     parser.add_argument("--path", type=str, default='data/datasets/demo_mp_data.csv',
                         help="Path to the dataset (default: data/datasets/demo_mp_data.csv")
     parser.add_argument("--epochs", type=int, default=100,
-                        help="Number of epochs to train the model (default: 100)")
+                        help="Number of epochs to train the model, default: 100")
     parser.add_argument("--batchsize", type=int, default=2048,
                         help="Batch size for training (default: 2048)")
-    parser.add_argument("--train", type=bool, default=True,
-                        help="Boolean flag to indicate whether to train the model, default: True")
+    parser.add_argument("--train", type=int, default=1,
+                        help="whether to train the model, 1: true, 0: false, default: 1")
     parser.add_argument("--name", type=str, help="Name of the experiment or model")
     parser.add_argument("--train_data_used", type=float, default=1.0,
                         help="Fraction of training data to be used")
     parser.add_argument("--device", type=str, default='cuda:0',
-                        help="Device to run the training on, e.g., 'cuda:0' or 'cpu'")
+                        help="Device to run the training on, e.g., 'cuda:0' or 'cpu', default: 'cuda:0'")
     parser.add_argument("--folds", type=int, default=5,
-                        help="Number of folds for training ECSG (default: 5)")
+                        help="Number of folds for training ECSG, default: 5")
     parser.add_argument("--lr", type=float, default=1e-3,
                         help="Learning rate for the optimizer (default: 0.001)")
-    parser.add_argument("--save_model", type=bool, default=True,
-                        help="Whether to save trained models (default: True)")
-    parser.add_argument("--load_from_local", type=bool, default=False,
-                        help="Load features from local or generate features from scratch (default: False)")
-    parser.add_argument("--prediction_model", type=bool, default=False,
-                        help="Train a model for predicting or testing (default: False)")
+    parser.add_argument("--save_model", type=int, default=1,
+                        help="Whether to save trained models , 1: true, 0: false, default: 1")
+    parser.add_argument("--load_from_local", type=int, default=0,
+                        help="Load features from local or generate features from scratch , 1: true, 0: false, default: 0")
+    parser.add_argument("--feature_path", type=str, default=None,
+                        help="Path to processed features, default: None")
+    parser.add_argument("--prediction_model", type=int, default=0,
+                        help="Train a model for predicting or testing , 1: true, 0: false, default: 0")
     parser.add_argument("--train_meta_model", type=bool, default=True,
-                        help="Train a single model or train the ensemble model (default: True)")
+                        help="Train a single model or train the ensemble model , 1: true, 0: false, default: 1")
     parser.add_argument("--performance_test", type=bool, default=True,
-                        help="Whether to test the performance of trained model (default: True)")
+                        help="Whether to test the performance of trained model , 1: true, 0: false, default: 1")
 
     args = parser.parse_args()
-    print(args.name)
     device = args.device
+    print(device)
 
     """tasks type"""
-    train = True
+    train = args.train
+    # print(train)
     save_model = args.save_model   ## wheather to save trained models
     load_from_local = args.load_from_local  ## load features from local  or generate features from scrath
     prediction_model = args.prediction_model  ## train a model for predicting or testing
@@ -378,7 +392,7 @@ if __name__ == '__main__':
     # print(train_X.shape)
     if prediction_model:
         train_X = data
-        test_X = pd.read_csv('data/datasets/test_tm_3.csv')
+        test_X = pd.read_csv('data/datasets/test_X.csv')
 
     if train:
         weight = np.ones(len(train_X)) / len(train_X)

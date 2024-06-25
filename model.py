@@ -103,10 +103,10 @@ class Roost():
         model_name = self.model_name
         train_model_5(df, cuda, device, epoch, batch_size, n_fold, model_name, kfolds=kfolds, random_seed_3=random_seed_3)
 
-    def predict(self, df, cuda, n_fold):
+    def predict(self, df, cuda, device, n_fold):
         model_name = self.model_name
         df_new = df.reset_index(drop=True)
-        model_5_predict(df_new, cuda, n_fold, model_name)
+        model_5_predict(df_new, cuda, device,  n_fold, model_name)
         results = pd.read_csv(f'results/Roost/predict_results_{model_name}_r-0.csv')
         results.rename(columns={'id':'materials-id'}, inplace=True)
         pre_y = pd.merge(df_new, results, on='materials-id')['class-1-pred_0_pro'].values

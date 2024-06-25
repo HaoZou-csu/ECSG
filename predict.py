@@ -35,7 +35,7 @@ def get_formulas(data):
     return formulas, y
 
 
-def featurization(formulas, index, load_from_local=False):
+def featurization(formulas, index, feature_path= None, load_from_local=False):
     if not load_from_local:
 
         f_0 = Magpie_fea(formulas)
@@ -45,12 +45,11 @@ def featurization(formulas, index, load_from_local=False):
         feature = [f_0, f_1, f_2]
 
     else:
-        res = open("D:/programming/ECSG_git/data/file", 'rb')
+        res = open(feature_path, 'rb')
         data = pickle.load(res)
         f_0 = data[0][index,:]
         f_1 = data[1][index,:]
         f_2 = data[2][index,:]
-
 
         feature = [f_0, f_1, f_2]
 
@@ -90,11 +89,11 @@ def bulid_models(path, name, j, save_model):
 
 
 
-def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0'):
+def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0', feature_path= None, load_from_local=False ):
     formulas = data['composition'].values
     # y = data['target'].values
     index = data['materials-id'].values
-    features = featurization(formulas,index, False)
+    features = featurization(formulas,index, feature_path, load_from_local)
 
     pre_y = []
     # for i in range(len(features)):
@@ -138,7 +137,7 @@ def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0'):
 
 
         else:
-            y = m.predict(data, False, j)
+            y = m.predict(data, False, device, j)
 
             pre_y.append(y)
             torch.cuda.empty_cache()
@@ -149,25 +148,11 @@ def predict_ensemble(save_path, name, model_list, j, data, device='cuda:0'):
 
 
 
-def each_fold_path(data, n_fold, folds=10, random_seed_3=123):
-    train_for = data
-    kf = KFold(n_splits=folds, shuffle=True, random_state=random_seed_3)
-    i = 0
-    for train, test in kf.split(train_for):
-        if i == n_fold:
-            test = train_for.index[test]
-            test = np.array(test).tolist()
 
-            fold_data = train_for.loc[test]
-            fold_y = fold_data['target'].values
-        i = i + 1
-    return fold_data, fold_y
-
-
-def ecsg_predict(name, data, model_list=[0,1,2], folds=10):
+def ecsg_predict(name, data, model_list=[0,1,2], folds=10, feature_path=None, load_from_local = False):
     pre_test_y = []
     for i in range(folds):
-        pre_test_y_i = predict_ensemble('models', name, model_list, i, data)
+        pre_test_y_i = predict_ensemble('models', name, model_list, i, data, feature_path, load_from_local)
         pre_test_y.append(pre_test_y_i)
 
     pre_test_y = np.array(pre_test_y)
@@ -187,7 +172,14 @@ def ecsg_predict(name, data, model_list=[0,1,2], folds=10):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=str, default='data/datasets/demo_mp_data.csv')
-    parser.add_argument("--name", type=str)
+    parser.add_argument("--name", type=str, help="Name of the experiment or model")
+    parser.add_argument("--load_from_local", type=int, default=0,
+                        help="Load features from local or generate features from scratch , 1: true, 0: false, default: 0")
+    parser.add_argument("--feature_path", type=str, default=None,
+                        help="Path to processed features, default: None")
+
+    import time
+    start = time.time()
 
     args = parser.parse_args()
     name = args.name
@@ -201,3 +193,7 @@ if __name__ == '__main__':
     predict_data['target'] = results
     save_path = 'results/meta/' + name + '_predict_results.csv'
     predict_data.to_csv(save_path, index=False)
+    print(f'Prediction results saved in {save_path}')
+
+    end = time.time()
+    print(end-start)

@@ -95,7 +95,7 @@ models
 ```
 
 ## Input
-This project provides two feature processing schemes, and the corresponding inputs are different.
+This project provides two feature processing schemes,  each with different input requirements.
 #### 1、Feature Processing at Runtime
 In this scheme, users need to provide a CSV file containing the materials-id and composition. The program will process the CSV file and generate features at runtime.
 

@@ -1,8 +1,34 @@
 import torch
 import torch.nn as nn
-from torch_scatter import scatter_add, scatter_max, scatter_mean
+# from torch_scatter import scatter_add, scatter_max, scatter_mean
 
 
+def scatter_mean(x, index, dim=0):
+    out_size = index.max().item() + 1 
+    sum_scatter = torch.zeros(out_size, dtype=x.dtype, device=x.device).scatter_add_(dim, index, x)
+    ones = torch.ones_like(x, dtype=torch.float32)
+    count_scatter = torch.zeros(out_size, dtype=torch.float32, device=x.device).scatter_add_(dim, index, ones)
+    mean_scatter = sum_scatter / count_scatter.clamp(min=1)
+
+    return mean_scatter
+    
+def scatter_add(x, index, dim=0):
+    out_size = index.max().item() + 1  
+    output = torch.zeros(out_size, dtype=x.dtype, device=x.device).scatter_add_(dim, index, x)
+
+    return output
+
+def scatter_max(x, index, dim=0):
+    out_size = index.max().item() + 1  
+
+    max_scatter = torch.full((out_size,), float('-inf'), dtype=x.dtype, device=x.device)
+
+    for i in range(x.size(dim)):
+        max_scatter[index[i]] = torch.max(max_scatter[index[i]], x[i])
+
+    return max_scatter
+
+ 
 class MeanPooling(nn.Module):
     """
     mean pooling

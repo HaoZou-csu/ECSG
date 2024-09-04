@@ -3,30 +3,79 @@ import torch.nn as nn
 # from torch_scatter import scatter_add, scatter_max, scatter_mean
 
 
-def scatter_mean(x, index, dim=0):
-    out_size = index.max().item() + 1 
-    sum_scatter = torch.zeros(out_size, dtype=x.dtype, device=x.device).scatter_add_(dim, index, x)
-    ones = torch.ones_like(x, dtype=torch.float32)
-    count_scatter = torch.zeros(out_size, dtype=torch.float32, device=x.device).scatter_add_(dim, index, ones)
-    mean_scatter = sum_scatter / count_scatter.clamp(min=1)
 
-    return mean_scatter
-    
-def scatter_add(x, index, dim=0):
-    out_size = index.max().item() + 1  
-    output = torch.zeros(out_size, dtype=x.dtype, device=x.device).scatter_add_(dim, index, x)
+def broadcast(src: torch.Tensor, other: torch.Tensor, dim: int):
+    if dim < 0:
+        dim = other.dim() + dim
+    if src.dim() == 1:
+        for _ in range(0, dim):
+            src = src.unsqueeze(0)
+    for _ in range(src.dim(), other.dim()):
+        src = src.unsqueeze(-1)
+    src = src.expand(other.size())
+    return src
 
-    return output
 
-def scatter_max(x, index, dim=0):
-    out_size = index.max().item() + 1  
+def scatter_add(src, index, dim=0, out=None, dim_size=None):
+    index = broadcast(index, src, dim)
 
-    max_scatter = torch.full((out_size,), float('-inf'), dtype=x.dtype, device=x.device)
+    if out is None:
+        size = list(src.size())
+        if dim_size is not None:
+            size[dim] = dim_size
+        elif index.numel() == 0:
+            size[dim] = 0
+        else:
+            size[dim] = int(index.max()) + 1
+        out = torch.zeros(size, dtype=src.dtype, device=src.device)
+        return out.scatter_add_(dim, index, src)
+    else:
+        return out.scatter_add_(dim, index, src)
 
-    for i in range(x.size(dim)):
-        max_scatter[index[i]] = torch.max(max_scatter[index[i]], x[i])
 
-    return max_scatter
+def scatter_max(src: torch.Tensor, index: torch.Tensor, dim: int = -1,
+                 out= None,
+                 dim_size=None) -> torch.Tensor:
+
+
+    new_src = torch.empty_like(src)
+
+    unique_indices = torch.unique(index)
+    for idx in unique_indices:
+        # Get the mask for the current index
+        mask = index == idx
+
+        # Find the maximum value in src for the current index
+        max_value = src[mask].max()
+
+        # Assign the maximum value to all positions in new_src corresponding to the current index
+        new_src[mask] = max_value
+
+    return new_src, None
+
+
+def scatter_mean(src: torch.Tensor, index: torch.Tensor, dim: int = -1,
+                 out= None,
+                 dim_size=None) -> torch.Tensor:
+    out = scatter_add(src, index, dim, out, dim_size)
+    dim_size = out.size(dim)
+
+    index_dim = dim
+    if index_dim < 0:
+        index_dim = index_dim + src.dim()
+    if index.dim() <= index_dim:
+        index_dim = index.dim() - 1
+
+    ones = torch.ones(index.size(), dtype=src.dtype, device=src.device)
+    count = scatter_add(ones, index, index_dim, None, dim_size)
+    count[count < 1] = 1
+    count = broadcast(count, out, dim)
+    if out.is_floating_point():
+        out.true_divide_(count)
+    else:
+        out.div_(count, rounding_mode='floor')
+    return out
+
 
  
 class MeanPooling(nn.Module):

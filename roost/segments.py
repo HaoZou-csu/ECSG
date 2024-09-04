@@ -85,7 +85,7 @@ class AttentionPooling(nn.Module):
 
         gate = self.gate_nn(x)
 
-        gate = gate - scatter_max(gate, index, dim=0)[0][index]
+        gate = gate - scatter_max(gate, index, dim=0)[index]
         gate = gate.exp()
         gate = gate / (scatter_add(gate, index, dim=0)[index] + 1e-10)
 
@@ -119,7 +119,7 @@ class WeightedAttentionPooling(nn.Module):
 
         gate = self.gate_nn(x)
 
-        gate = gate - scatter_max(gate, index, dim=0)[0][index]
+        gate = gate - scatter_max(gate, index, dim=0)[index]
         gate = (weights ** self.pow) * gate.exp()
         # gate = weights * gate.exp()
         # gate = gate.exp()

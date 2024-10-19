@@ -193,8 +193,6 @@ if __name__ == '__main__':
     parser.add_argument("--feature_path", type=str, default=None,
                         help="Path to processed features, default: None")
 
-    import time
-    start = time.time()
 
     args = parser.parse_args()
     name = args.name
@@ -210,5 +208,4 @@ if __name__ == '__main__':
     predict_data.to_csv(save_path, index=False)
     print(f'Prediction results saved in {save_path}')
 
-    end = time.time()
-    print(end-start)
+

@@ -218,18 +218,33 @@ optional arguments:
 ```
 ## Prediction with structure information
 To further improve prediction accuracy, we provide modules that include structural information in ECSGs when the structure is known. Follow the steps:
-####1. Specify the CIF Files Folder
+#### 1. Specify the CIF Files Folder
 You need to provide a folder containing the CIF files for the materials you want to predict. In this folder, there must also be an id_prop.csv file. This file should include a column that lists the IDs of the CIF files to be used for prediction. We have provided an example in the data folder.
-####2. Download and Place Pre-trained Models
+#### 2. Download and Place Pre-trained Models
 Download the pre-trained models and place them in the models folder. Copy the MP_cif_train_1 folder and the folders from CGCNN into the root directory of the models folder. This ensures that the required model files are available for running predictions.
-#####3. Running the Prediction Script
+##### 3. Running the Prediction Script
 Use the following command to run the prediction script:
 ```shell
-python script.py --name <experiment_name> --cif_path <path_to_cif_folder> --cgcnn_model_path <path_to_cgcnn_models>
+python predict_with_cifs.py --name <experiment_name> --cif_path <path_to_cif_folder> --cgcnn_model_path <path_to_cgcnn_models>
 ```
---name: Name of the experiment or run (you can specify any identifier for tracking the run).
---cif_path: The path to the folder containing the CIF files and the id_prop.csv file.
---cgcnn_model_path: The path to the folder containing the pre-trained CGCNN models.
+
+```shell
+usage: predict_with_cifs.py [-h] [--name NAME] [--cif_path CIF_PATH] [--cgcnn_model_path CGCNN_MODEL_PATH] [--batchsize BATCHSIZE] [--device DEVICE]
+
+Prediction script for structure-based model
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --name NAME           Name of the experiment or model
+  --cif_path CIF_PATH   Path to the dataset (default: data/mp_2024/cif
+  --cgcnn_model_path CGCNN_MODEL_PATH
+                        Path to the dataset (default: data/mp_2024/cif
+  --batchsize BATCHSIZE
+                        Batch size for prediction (default: 2048)
+  --device DEVICE       Device to run the training on, e.g., 'cuda:0' or 'cpu', default: 'cuda:0'
+
+
+```
 
 
 ## Contact

@@ -226,13 +226,17 @@ optional arguments:
 ## Prediction with structure information
 To further improve prediction accuracy, we provide modules that include structural information in ECSGs when the structure is known. Follow the steps:
 #### 1. Specify the CIF Files Folder
-You need to provide a folder containing the CIF files for the materials you want to predict. In this folder, there must also be an id_prop.csv file. This file should include a column that lists the IDs of the CIF files to be used for prediction. We have provided an example in the **data/mp_2024_test/cif** folder.
+You need to provide a folder containing the CIF files for the materials you want to predict. In this folder, there must also be an **id_prop.csv** file and an **atom_init.json** file. **id_prop.csv** should include a column that lists the IDs of the CIF files to be used for prediction. We have provided an example in the **data/mp_2024_test/cif** folder. **atom_init.json** contains the necessary information for the atom embedding and we provided this file in **data/mp_2024_test/cif** folder.
 #### 2. Download and Place Pre-trained Models
 Download the pre-trained models and place them in the models folder. Copy all of the files in **MP_cif_train_1** folder and the folders from **CGCNN** into the root directory of the **models** folder. This ensures that the required model files are available for running predictions.
-##### 3. Running the Prediction Script
+#### 3. Running the Prediction Script
 Use the following command to run the prediction script:
 ```shell
 python predict_with_cifs.py --name <experiment_name> --cif_path <path_to_cif_folder> --cgcnn_model_path <path_to_cgcnn_models>
+```
+**example**
+```shell
+python predict_with_cifs.py --name demo --cif_path data/dataset/mp_2024_test/cif --cgcnn_model_path models
 ```
 Please type `predict_with_cifs.py --h` for more help.
 

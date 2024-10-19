@@ -354,7 +354,7 @@ if __name__ == '__main__':
     cif_path = args.cif_path
     model_path = args.cgcnn_model_path
     batchsize = args.batchsize
-    save_path = 'results/meta/' + name + '_predict_results_cif.csv'
+    save_path = 'results/ + name + '_predict_results_cif.csv'
 
     df = composition_from_cif(cif_path)
 
@@ -368,6 +368,7 @@ if __name__ == '__main__':
     y = model.predict(meta_X)
 
     df = df.rename(columns={'target': 'pre_y'})
+    df['pre_y'] = y
     df.to_csv(save_path, index=False)
     print(f'Prediction results saved in {save_path}')
 

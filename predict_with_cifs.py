@@ -21,7 +21,6 @@ from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler
 from torch.nn.utils.rnn import pad_sequence
 import json
 from model import CrystalGraphConvNet
-from parse_config import ConfigParser
 from predict import ecsg_predict, ecsg_composition_predict
 
 

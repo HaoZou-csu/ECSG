@@ -354,7 +354,7 @@ if __name__ == '__main__':
     cif_path = args.cif_path
     model_path = args.cgcnn_model_path
     batchsize = args.batchsize
-    save_path = 'results/ + name + '_predict_results_cif.csv'
+    save_path = 'results/' + name + '_predict_results_cif.csv'
 
     df = composition_from_cif(cif_path)
 

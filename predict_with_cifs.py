@@ -338,10 +338,10 @@ if __name__ == '__main__':
 
     # Add arguments to the parser
     parser.add_argument("--name", type=str, help="Name of the experiment or model", default='MP_cif_train_1')
-    parser.add_argument("--cif_path", type=str, default='data/mp_2024/cif',
-                        help="Path to the dataset (default: data/mp_2024/cif")
-    parser.add_argument("--cgcnn_model_path", type=str, default='models/CGCNN',
-                        help="Path to the dataset (default: data/mp_2024/cif")
+    parser.add_argument("--cif_path", type=str, default='data/mp_2024_demo/cif',
+                        help="Path to the dataset (default: data/mp_2024_demo/cif")
+    parser.add_argument("--cgcnn_model_path", type=str, default='models',
+                        help="Path to the dataset (default: models")
 
     parser.add_argument("--batchsize", type=int, default=2048,
                         help="Batch size for prediction (default: 2048)")

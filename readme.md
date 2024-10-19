@@ -255,7 +255,7 @@ Prediction script for structure-based model
 optional arguments:
   -h, --help            show this help message and exit
   --name NAME           Name of the experiment or model (default: MP_cif_train_1)
-  --cif_path CIF_PATH   Path to the dataset (default: data/mp_2024_test/cif)
+  --cif_path CIF_PATH   Path to the dataset (default: data/datasets/mp_2024_demo/cif)
   --cgcnn_model_path CGCNN_MODEL_PATH
                         Path to the dataset (default: models/)
   --batchsize BATCHSIZE

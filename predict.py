@@ -202,9 +202,13 @@ if __name__ == '__main__':
     predict_data = pd.read_csv(path)
 
     results = ecsg_predict(name, predict_data, folds=5)
+    predict_data = predict_data.rename(columns={'target': 'pre_y'})
+    predict_data['pre_y'] = results
+    
     results = [True if results[n] > 0.5 else False for n in range(len(results))]
-    predict_data['target'] = results
-    save_path = 'results/meta/' + name + '_predict_results.csv'
+    predict_data['pre_y_01'] = results
+    
+    save_path = 'results/' + name + '_predict_results.csv'
     predict_data.to_csv(save_path, index=False)
     print(f'Prediction results saved in {save_path}')
 

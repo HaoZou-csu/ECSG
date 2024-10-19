@@ -369,6 +369,9 @@ if __name__ == '__main__':
 
     df = df.rename(columns={'target': 'pre_y'})
     df['pre_y'] = y
+    results = [True if y[n] > 0.5 else False for n in range(len(y))]
+    df['pre_y_01'] = results
+    
     df.to_csv(save_path, index=False)
     print(f'Prediction results saved in {save_path}')
 

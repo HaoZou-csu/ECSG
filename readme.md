@@ -234,7 +234,7 @@ To further improve prediction accuracy, we provide modules that include structur
 #### 1. Specify the CIF Files Folder
 You need to provide a folder containing the CIF files for the materials you want to predict. In this folder, there must also be an **id_prop.csv** file and an **atom_init.json** file. **id_prop.csv** should include a column that lists the IDs of the CIF files to be used for prediction. We have provided an example in the **data/datsets/mp_2024_demo/cif** folder. **atom_init.json** contains the necessary information for the atom embedding and we provided this file in **data/datasets/mp_2024_demo/cif** folder.
 #### 2. Download and Place Pre-trained Models
-Download the pre-trained models and place them in the models folder. Copy all of the files in **MP_cif_train_1** folder and the folders from **CGCNN** into the root directory of the **models** folder. This ensures that the required model files are available for running predictions.
+[Download](https://drive.google.com/drive/folders/12KcFrYxGNUhQlRy_br0vs98mMsSg-eF0?usp=sharing) the pre-trained models and place them in the models folder. Copy all of the files in **MP_cif_train_1** folder and  **CGCNN** folder into the root directory of the **models** folder. This ensures that the required model files are available for running predictions.
 #### 3. Running the Prediction Script
 Use the following command to run the prediction script:
 ```shell

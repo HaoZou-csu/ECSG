@@ -152,9 +152,9 @@ python predict.py --name jarvis_3d --path your_data.csv --load_from_local 1 --fe
 Run the following command to start training:
 
 ```shell
-python train.py --name customized_model_name --path data/datasets/mp_data.csv
+python train.py --name customized_model_name --path data/datasets/MP_all.csv
 ```
-In the **data/datasets** folder, there are [instructions](https://github.com/HaoZou-csu/ECSG/blob/main/data/datasets/readme.md) to download all the datasets in this study. Ensure that the model takes **input** in the form CSV files with materials-ids, composition strings and target values as the columns.
+In the **data/datasets** folder, there are [instructions](https://github.com/HaoZou-csu/ECSG/blob/main/data/datasets/readme.md) to download all the datasets in this study. We also provided the processed files, like **MP_all.csv**.Ensure that the model takes **input** in the form CSV files with materials-ids, composition strings and target values as the columns.
 
 | material-id | composition | target |
 |-------------|-------------|--------|
@@ -164,18 +164,25 @@ In the **data/datasets** folder, there are [instructions](https://github.com/Hao
 
 After training, the training log will be saved in the **log** folder through tensorboard, the files containing models' structures and learned parameters will be saved in the **models** folder and the save folder, and the test results will be printed out and saved in **results** folder.
 
+#### Reproducibility with trained models
+[Download](https://drive.google.com/drive/folders/12KcFrYxGNUhQlRy_br0vs98mMsSg-eF0?usp=sharing) and copy all of the files in **MP** folder into the root directory of the **models** folder.
+```shell
+python train.py --name MP --train 0 --path data/datasets/MP_all.csv
+```
+
 If set `performance_test=True` and a test dataset is defined, the performance of the model will be printed as follows:
 ```text
         Performance Metrics:
         ====================
-        Accuracy: 0.9697802197802198
-        Precision: 0.8252212389380531
-        Recall: 0.8126361655773421
-        F1 Score: 0.8188803512623489
-        False Negative Rate (FNR): 0.017172523961661343
-        AUC Score: 0.9918534811556208
-        AUPR: 0.9139832154286772
-        Max F1: 0.8400412796697626
+        Accuracy: 0.8082804046106798
+        Precision: 0.7778810408921933
+        Recall: 0.7333528037383178
+        F1 Score: 0.7549609140108238
+        False Negative Rate (FNR): 0.17311338642396662
+        AUC Score: 0.8859076444843617
+        AUPR: 0.83047467713657
+        Max F1: 0.7689373297002724
+        NPV: 0.8268866135760333
 ```
 #### Train under different data size
 
@@ -221,7 +228,7 @@ To further improve prediction accuracy, we provide modules that include structur
 #### 1. Specify the CIF Files Folder
 You need to provide a folder containing the CIF files for the materials you want to predict. In this folder, there must also be an id_prop.csv file. This file should include a column that lists the IDs of the CIF files to be used for prediction. We have provided an example in the **data/mp_2024_test/cif** folder.
 #### 2. Download and Place Pre-trained Models
-Download the pre-trained models and place them in the models folder. Copy the **MP_cif_train_1** folder and the folders from **CGCNN** into the root directory of the **models** folder. This ensures that the required model files are available for running predictions.
+Download the pre-trained models and place them in the models folder. Copy all of the files in **MP_cif_train_1** folder and the folders from **CGCNN** into the root directory of the **models** folder. This ensures that the required model files are available for running predictions.
 ##### 3. Running the Prediction Script
 Use the following command to run the prediction script:
 ```shell

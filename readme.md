@@ -53,6 +53,7 @@ conda install pytorch==1.13.0 torchvision==0.14.0 torchaudio==0.13.0 pytorch-cud
 
 # ECSG requires torch-scatter, pip install it with
 pip install https://data.pyg.org/whl/torch-1.13.0%2Bcu116/torch_scatter-2.0.9-cp38-cp38-linux_x86_64.whl
+# for Windows users,  pip install https://data.pyg.org/whl/torch-1.13.0%2Bcu116/torch_scatter-2.0.9-cp38-cp38-win_amd64.whl
 
 # Install pymatgen and matminer
 pip install pymatgen matminer
@@ -74,8 +75,8 @@ You can train a demo model by:
 ```shell
 python train.py --name demo --path data/datasets/demo_mp_data.csv --epochs 10
 ```
-If the following files exist in the **models** directory, it means the program runs successfully: 
 
+If the following files exist in the **models** directory, it means the program runs successfully: 
 ```text
 models
 ├── demo_meta_model.pkl
@@ -138,11 +139,11 @@ To predict the thermodynamic stability of materials, You can download the pre-tr
 Place all the downloaded model files in the **models** folder in the project root directory.
 Use the following command to make predictions. Replace **your_data.csv** with the path to your data file containing the compounds of interest:
 ```shell
-python predict.py --name jarvis_3d --path your_data.csv
+python predict.py --name MP --path your_data.csv
 ```
 or use local feature file:
 ```shell
-python predict.py --name jarvis_3d --path your_data.csv --load_from_local 1 --feature_path feature_file
+python predict.py --name MP --path your_data.csv --load_from_local 1 --feature_path feature_file
 ```
 
 
@@ -236,7 +237,7 @@ python predict_with_cifs.py --name <experiment_name> --cif_path <path_to_cif_fol
 ```
 **example**
 ```shell
-python predict_with_cifs.py --name demo --cif_path data/dataset/mp_2024_test/cif --cgcnn_model_path models
+python predict_with_cifs.py --name demo --cif_path data/datasets/mp_2024_test/cif --cgcnn_model_path models
 ```
 Please type `predict_with_cifs.py --h` for more help.
 

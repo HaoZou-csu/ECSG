@@ -214,6 +214,10 @@ optional arguments:
   --performance_test PERFORMANCE_TEST
                         Whether to test the performance of trained model , 1: true, 0: false, default: 1
 ```
+## Prediction with structure information
+To predict the thermodynamic stability of materials, You can download the pre-trained model 'CGCNN.pth' files from the following link:
+
+specify the 'cif' file 
 
 ## Contact
 

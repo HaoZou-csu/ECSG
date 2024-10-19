@@ -298,7 +298,7 @@ def composition_from_cif(cif_path):
     target = []
     for i in range(len(id_prop_data)):
         cif_file = id_prop_data[i][0]+ '.cif'
-        cif_path_i = cif_path + '/' + cif_file
+        cif_path_i = os.path.join(cif_path, cif_file)
         formulas.append(Structure.from_file(cif_path_i).composition.alphabetical_formula)
         target.append(random.choice([True, False]))
 
@@ -318,7 +318,7 @@ def ecsg_struct_predict(cif_path, model_path, batch_size):
         for batch_idx, (input, target, _) in enumerate(cif_loader):
             x1, x2, x3, x4 = input
 
-            model_path_i = model_path  + f'\CGCNN_fold_{i}.pth'
+            model_path_i = os.path.join(model_path, f'CGCNN_fold_{i}.pth')
             state_dict = torch.load(model_path_i)
             model = CrystalGraphConvNet(orig_atom_fea_len=92, nbr_fea_len=41, classification=True)
             model.load_state_dict(state_dict)

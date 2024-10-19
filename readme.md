@@ -217,9 +217,20 @@ optional arguments:
                         Whether to test the performance of trained model , 1: true, 0: false, default: 1
 ```
 ## Prediction with structure information
-To predict the thermodynamic stability of materials, You can download the pre-trained model 'CGCNN.pth' files from the following link:
+To further improve prediction accuracy, we provide modules that include structural information in ECSGs when the structure is known. Follow the steps:
+####1. Specify the CIF Files Folder
+You need to provide a folder containing the CIF files for the materials you want to predict. In this folder, there must also be an id_prop.csv file. This file should include a column that lists the IDs of the CIF files to be used for prediction. We have provided an example in the data folder.
+####2. Download and Place Pre-trained Models
+Download the pre-trained models and place them in the models folder. Copy the MP_cif_train_1 folder and the folders from CGCNN into the root directory of the models folder. This ensures that the required model files are available for running predictions.
+#####3. Running the Prediction Script
+Use the following command to run the prediction script:
+```shell
+python script.py --name <experiment_name> --cif_path <path_to_cif_folder> --cgcnn_model_path <path_to_cgcnn_models>
+```
+--name: Name of the experiment or run (you can specify any identifier for tracking the run).
+--cif_path: The path to the folder containing the CIF files and the id_prop.csv file.
+--cgcnn_model_path: The path to the folder containing the pre-trained CGCNN models.
 
-specify the 'cif' file 
 
 ## Contact
 

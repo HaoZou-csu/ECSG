@@ -33,6 +33,8 @@ scipy\
 pytest\
 smact
 
+If you encounter issues installing `torch-scatter` or experience errors related to `torch-scatter` during runtime, please uninstall `torch-scatter`. After uninstallation, custom functions based on PyTorch will be called instead of the functions in torch_scatter.
+
 #### Step-by-Step Installation
 Alternatively, you can install all required packages as follows:
 ```shell

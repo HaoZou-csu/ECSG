@@ -354,10 +354,9 @@ if __name__ == '__main__':
     cif_path = args.cif_path
     model_path = args.cgcnn_model_path
     batchsize = args.batchsize
+    save_path = 'results/meta/' + name + '_predict_results_cif.csv'
 
     df = composition_from_cif(cif_path)
-
-
 
     pre_composition_y = ecsg_composition_predict(name, df, folds=5)
     pre_structure_y = ecsg_struct_predict(cif_path, model_path, batch_size=64)
@@ -368,8 +367,10 @@ if __name__ == '__main__':
     model.predict(meta_X)
     y = model.predict(meta_X)
 
-    print('prediction done')
-    print(y)
+    df = df.rename(columns={'target': 'pre_y'})
+    df.to_csv(save_path, index=False)
+    print(f'Prediction results saved in {save_path}')
+
 
 
 

@@ -166,6 +166,21 @@ def ecsg_predict(name, data, model_list=[0,1,2], folds=10, feature_path=None, lo
 
     return results
 
+def ecsg_composition_predict(name, data, model_list=[0,1,2], folds=10, feature_path=None, load_from_local = False, device='cuda:0'):
+    pre_test_y = []
+    for i in range(folds):
+        pre_test_y_i = predict_ensemble('models', name, model_list, i, data,device, feature_path, load_from_local)
+
+        pre_test_y.append(pre_test_y_i)
+
+    pre_test_y = np.array(pre_test_y)
+    pre_test = np.mean(pre_test_y, axis=0)
+
+    pre_test = np.swapaxes(pre_test, axis1=0, axis2=1)
+    pre_test = pre_test.squeeze(axis=2)
+
+
+    return pre_test
 
 
 

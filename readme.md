@@ -2,7 +2,7 @@
 
 Machine learning offers a promising avenue for expediting the discovery of new compounds by accurately predicting their thermodynamic stability. This approach provides significant advantages in terms of time and resource efficiency compared to traditional experimental and modeling methods. However, most existing models are constructed based on specific domain knowledge, potentially introducing biases that impact their performance. 
 
-To overcome this limitation, we propose a novel machine learning framework **Electron Configuration Stacked Generalization (ECSG)**, rooted in electron configuration, further enhanced through stack generalization with two additional models grounded in diverse domain knowledge. Experimental results validate the efficacy of our model in accurately predicting the stability of compounds, achieving an impressive Area Under the Curve (AUC) score of 0.988. Notably, our model demonstrates exceptional efficiency in sample utilization, requiring only one-seventh of the data used by existing models to achieve the same performance. 
+To overcome this limitation, we propose a novel machine learning framework **Electron Configuration Stacked Generalization (ECSG)**(https://www.nature.com/articles/s41467-024-55525-y), rooted in electron configuration, further enhanced through stack generalization with two additional models grounded in diverse domain knowledge. Experimental results validate the efficacy of our model in accurately predicting the stability of compounds, achieving an impressive Area Under the Curve (AUC) score of 0.988. Notably, our model demonstrates exceptional efficiency in sample utilization, requiring only one-seventh of the data used by existing models to achieve the same performance. 
 ## Contents
 - [Installation](#installation)
 - [Demo data](#demo-data)
@@ -264,7 +264,8 @@ optional arguments:
 
 
 ```
-
+## References
+Zou H, Zhao H, Lu M, Wang J, Deng Z, Wang J. Predicting thermodynamic stability of inorganic compounds using ensemble machine learning based on electron configuration. Nat. Commun. 16, 203 (2025).
 
 ## Contact
 
